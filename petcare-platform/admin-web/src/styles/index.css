@@ -1,0 +1,364 @@
+:root {
+  /* Color — a quiet field-ledger palette, not the usual cream/terracotta SaaS look */
+  --bg: #eef1ee;
+  --panel: #ffffff;
+  --ink: #1e2723;
+  --ink-muted: #5b655f;
+  --ink-faint: #8b948e;
+  --line: rgba(30, 39, 35, 0.12);
+  --accent: #c97a2b;
+  --accent-ink: #6b3f14;
+  --success: #3e7a56;
+  --success-bg: #e7f1ea;
+  --danger: #b0413e;
+  --danger-bg: #f7e9e8;
+  --warning: #c98a2c;
+  --warning-bg: #f6ecdb;
+
+  --serif: 'Source Serif 4', Georgia, serif;
+  --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: #e8ece9;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  padding: 0 8px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 16px;
+}
+
+.sidebar-brand span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: rgba(232, 236, 233, 0.55);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav a {
+  text-decoration: none;
+  padding: 9px 10px;
+  border-radius: 3px;
+  color: rgba(232, 236, 233, 0.72);
+  font-size: 13.5px;
+}
+
+.sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.sidebar-nav a.active {
+  background: rgba(201, 122, 43, 0.18);
+  color: #f0c896;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12.5px;
+  color: rgba(232, 236, 233, 0.6);
+}
+
+.sidebar-footer button {
+  background: none;
+  border: none;
+  color: rgba(232, 236, 233, 0.6);
+  padding: 0;
+  font-size: 12.5px;
+  text-decoration: underline;
+  margin-top: 6px;
+}
+
+/* ---------- Main content ---------- */
+
+.main {
+  flex: 1;
+  padding: 36px 44px;
+  max-width: 1100px;
+}
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 24px;
+}
+
+.page-header p {
+  color: var(--ink-muted);
+  margin: 6px 0 0;
+  font-size: 13.5px;
+}
+
+/* ---------- Panels & tables ---------- */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+
+.panel + .panel {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 11.5px;
+  text-transform: none;
+  color: var(--ink-muted);
+  font-weight: 500;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+
+/* ---------- Status dot ---------- */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status.success .dot {
+  background: var(--success);
+}
+.status.danger .dot {
+  background: var(--danger);
+}
+.status.warning .dot {
+  background: var(--warning);
+}
+.status.neutral .dot {
+  background: var(--ink-faint);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 7px 14px;
+  border-radius: 3px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.btn:hover {
+  border-color: var(--ink-faint);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff5ea;
+}
+
+.btn-primary:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.92);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---------- Metric cards ---------- */
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.metric-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 18px 18px 16px;
+}
+
+.metric-card .label {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.metric-card .value {
+  font-family: var(--serif);
+  font-size: 28px;
+  margin-top: 6px;
+}
+
+/* ---------- Login ---------- */
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.login-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 40px 36px;
+  width: 340px;
+}
+
+.login-card h1 {
+  font-size: 21px;
+  margin-bottom: 4px;
+}
+
+.login-card p.sub {
+  color: var(--ink-muted);
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  background: #fdfdfc;
+}
+
+.field input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 12.5px;
+  margin: -6px 0 14px;
+}
+
+.empty-state {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: 13.5px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel,
+  .btn {
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+}

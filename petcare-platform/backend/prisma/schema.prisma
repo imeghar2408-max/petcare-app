@@ -1,0 +1,239 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ---------- ENUMS ----------
+
+enum UserRole {
+  PET_OWNER
+  PROVIDER
+  ADMIN
+}
+
+enum ServiceType {
+  WALKING
+  GROOMING
+  TRAINING
+  BOARDING
+  VET_VISIT
+  PET_SITTING
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum ProviderVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum ComplaintCategory {
+  SERVICE_QUALITY
+  SAFETY
+  PAYMENT
+  BEHAVIOR
+  APP_BUG
+  OTHER
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// ---------- CORE ----------
+
+model User {
+  id            String     @id @default(uuid())
+  firebaseUid   String     @unique
+  role          UserRole
+  name          String
+  email         String?    @unique
+  phone         String?    @unique
+  profilePhoto  String?
+  fcmToken      String?    // for push notifications (Firebase Cloud Messaging)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  petOwnerProfile PetOwnerProfile?
+  providerProfile ProviderProfile?
+  complaints      Complaint[]
+}
+
+model PetOwnerProfile {
+  id       String   @id @default(uuid())
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String   @unique
+  address  String?
+  lat      Float?
+  lng      Float?
+
+  pets     Pet[]
+  bookings Booking[]
+}
+
+model Pet {
+  id            String   @id @default(uuid())
+  owner         PetOwnerProfile @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  name          String
+  species       String   // dog, cat, etc.
+  breed         String?
+  age           Int?
+  weightKg      Float?
+  notes         String?  // allergies, temperament, medical notes
+  photoUrl      String?
+  createdAt     DateTime @default(now())
+
+  bookings      Booking[]
+}
+
+model ProviderProfile {
+  id                  String                      @id @default(uuid())
+  user                User                        @relation(fields: [userId], references: [id])
+  userId              String                      @unique
+  bio                 String?
+  yearsExperience     Int?
+  verificationStatus  ProviderVerificationStatus  @default(PENDING)
+  idDocumentUrl       String?
+  isAvailable         Boolean                     @default(false)
+  currentLat          Float?
+  currentLng          Float?
+  ratingAvg           Float                       @default(0)
+  ratingCount         Int                         @default(0)
+  createdAt           DateTime                    @default(now())
+
+  servicesOffered     ProviderService[]
+  bookings            Booking[]
+  payouts             Payout[]
+}
+
+model ProviderService {
+  id          String       @id @default(uuid())
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  providerId  String
+  serviceType ServiceType
+  priceInr    Int          // in paise or whole rupees, keep consistent
+  durationMin Int
+
+  @@unique([providerId, serviceType])
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  petOwner      PetOwnerProfile @relation(fields: [petOwnerId], references: [id])
+  petOwnerId    String
+  provider      ProviderProfile? @relation(fields: [providerId], references: [id])
+  providerId    String?
+  pet           Pet           @relation(fields: [petId], references: [id])
+  petId         String
+  serviceType   ServiceType
+  status        BookingStatus @default(REQUESTED)
+  scheduledAt   DateTime
+  addressText   String
+  lat           Float
+  lng           Float
+  priceInr      Int
+  notes         String?
+  // Safe zone: pet owner defines a center point + radius the provider
+  // (e.g. a dog walker) is expected to stay within during the job.
+  safeZoneLat       Float?
+  safeZoneLng       Float?
+  safeZoneRadiusM   Int?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  payment       Payment?
+  review        Review?
+  chatMessages  ChatMessage[]
+  locationPings LocationPing[]
+  complaints    Complaint[]
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  booking           Booking       @relation(fields: [bookingId], references: [id])
+  bookingId         String        @unique
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  amountInr         Int
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+}
+
+model Payout {
+  id          String   @id @default(uuid())
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  providerId  String
+  amountInr   Int
+  periodStart DateTime
+  periodEnd   DateTime
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+  bookingId  String   @unique
+  rating     Int      // 1-5
+  comment    String?
+  createdAt  DateTime @default(now())
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+  bookingId  String
+  senderId   String   // User.id
+  text       String
+  sentAt     DateTime @default(now())
+}
+
+model LocationPing {
+  id         String   @id @default(uuid())
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+  bookingId  String
+  lat        Float
+  lng        Float
+  recordedAt DateTime @default(now())
+}
+
+model Complaint {
+  id           String            @id @default(uuid())
+  reportedBy   User              @relation(fields: [reportedById], references: [id])
+  reportedById String
+  booking      Booking?          @relation(fields: [bookingId], references: [id])
+  bookingId    String?
+  category     ComplaintCategory
+  subject      String
+  description  String
+  status       ComplaintStatus   @default(OPEN)
+  adminNote    String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  resolvedAt   DateTime?
+}
